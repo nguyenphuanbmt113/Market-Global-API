@@ -1,0 +1,42 @@
+CRUD category
+- get all
+- create(chỉ có admin mới chơi đc)
+- get by id
+- searchMatchByName
+- add sub-category :id/new-sub-category(chỉ có admin mới chơi đc)
+- update (chỉ có admin mới chơi đc)
+- delete (chỉ có admin mới chơi đc)
+
+CRUD sub-category 
+- getAllSubCategories
+- getMixedLatestProducts
+- getSubCategoriesByTagName @Get('search-by-tag-name/:tagName')
+- searchMatchByName   @Get('match-by-name/:name')
+- getSubCategory   @Get(':id')
+- addTagsToCategory @Post(':id/add-tags') (admin)
+- deleteSubCategory  @Delete(':id/delete') (admin)
+- updateSubCategory  @Put(':id/update') (admin)
+- removeTagsFromCategory  @Delete(':id/remove-tags') (admin)
+- newProduct   @Post(':id/new-product/:folderName/:subFolder/:type') (admin)
+
+CRUD product
+- getAllProducts 
+- getShopProducts (limit, page)   @Get('shop')
+- getProductsTagsName  @Get('tags-names')
+- getTotalProducts   @Get('count')
+- getTotalSales  @Get('sales')
+- getMixLatestProduct  @Get('mix-latest-products')
+- getMostSalesProducts  @Get('most-sales')
+- getFilteredBetweenRange  @Post('custom-filter')
+- getProductsByTagName @Get('search-by-tag-name/:tagName')
+- searchMatchByName  @Get('match-by-name/:name')
+- getProductById  @Get(':id')
+
+- updateProduct @Put(':id/update') (admin)
+
+- addToCart  @Post(':productId/add-to-cart/:cartId') (admin)
+- addTagsToProduct @Post(':id/add-tags') (admin)
+- manageProductImages @Put(':productId/manage-images/:folderName/:subFolder/:type') (admin)
+
+- removeTagsFromProduct @Delete(':id/remove-tags') (admin)
+- deleteProduct @Delete(':id/delete') (admin)
