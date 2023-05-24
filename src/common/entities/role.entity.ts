@@ -10,8 +10,7 @@ import BaseClassEntity from './global/base-entity.entity';
 import { User } from './user.entity';
 
 export enum UserRole {
-  Guest = 'guest',
-  Host = 'host',
+  User = 'user',
   Admin = 'admin',
 }
 

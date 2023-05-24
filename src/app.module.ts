@@ -6,6 +6,8 @@ import { AppService } from './app.service';
 import { DatabaseModule } from './common/database/database.module';
 import { AuthModule } from './models/auth/auth.module';
 import { RoleModule } from './models/role/role.module';
+import { CategoryModule } from './models/category/category.module';
+import { SubCategoryModule } from './models/sub_category/sub_category.module';
 @Module({
   imports: [
     RoleModule,
@@ -23,6 +25,8 @@ import { RoleModule } from './models/role/role.module';
     }),
     DatabaseModule,
     AuthModule,
+    CategoryModule,
+    SubCategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
