@@ -4,6 +4,8 @@ import { SubCategory } from 'src/common/entities/sub-category.entity';
 import { Repository } from 'typeorm';
 import { SubCategoryUpdateDTO } from './dto/update-subcategory.dto';
 import { SubCategoryTag } from 'src/common/entities/sub-category-tab.entity';
+import { Product } from 'src/common/entities/product.entity';
+import { TagService } from '../tag/tag.service';
 
 @Injectable()
 export class SubCategoryService {
@@ -13,6 +15,8 @@ export class SubCategoryService {
 
     @InjectRepository(SubCategoryTag)
     public readonly subCategoryTagRepository: Repository<SubCategoryTag>,
+
+    private readonly tagService: TagService,
   ) {}
   async getAllSubCategories() {
     return await this.subCategoryRepository.find();
@@ -81,8 +85,10 @@ export class SubCategoryService {
     let addedTags = [];
     for (let i = 0; i < dataCreateTagDto.length; i++) {
       const sub_category = await this.getSubCategory(id);
+      const tag = await this.tagService.getTagById(dataCreateTagDto.tags[i]);
       const sub_category_tag = new SubCategoryTag();
       sub_category_tag.name = dataCreateTagDto.name;
+      sub_category_tag.tagId = tag.id;
       sub_category_tag.subCategory = sub_category;
       await sub_category_tag.save();
       addedTags = [...addedTags, sub_category_tag];
@@ -131,6 +137,51 @@ export class SubCategoryService {
     }
     return uniqueArray;
   }
-  //deleteSubCategory
+
   //newProduct
+  //@Post(':id/new-product/:folderName/:subFolder/:type') (admin)
+  async newProduct(
+    subCategoryId: number,
+    image: any,
+    productPayload: {
+      name: string;
+      description: string;
+      quantity: number;
+      currentPrice: number;
+    },
+  ) {
+    const subCategory = await this.getSubCategory(subCategoryId);
+    const { name, description, currentPrice, quantity } = productPayload;
+    const product = new Product();
+    product.name = name;
+    product.description = description;
+    product.currentPrice = currentPrice;
+    product.image = image.path;
+    product.quantity = quantity;
+    product.productTags = [];
+    product.subCategory = subCategory;
+    const newProduct = await product.save();
+    return newProduct;
+  }
+
+  async fetchMixLatestProducts() {
+    // const subCategories = await this.getAllSubCategories();
+    // const date = new Date(Date.now());
+    // const currentMonth = date.getMonth();
+    // let mixFilteredProducts = [];
+    // for (const subCategory of subCategories) {
+    //   const products: Product[] = subCategory.products.filter(
+    //     (p) =>
+    //       p.createdAt.getMonth() + 1 === currentMonth + 1 && p.inStock === true,
+    //   );
+    //   mixFilteredProducts = mixFilteredProducts.concat(products.slice(0, 1));
+    // }
+    // return mixFilteredProducts;
+    const subCategory = await this.subCategoryRepository
+      .createQueryBuilder('subcategory')
+      .leftJoinAndSelect('subcategory.products', 'products')
+      .orderBy('products.createdAt')
+      .getOne();
+    return subCategory;
+  }
 }

@@ -40,3 +40,12 @@ CRUD product
 
 - removeTagsFromProduct @Delete(':id/remove-tags') (admin)
 - deleteProduct @Delete(':id/delete') (admin)
+
+CRUD tags
+- getAllTags  @Get()
+- getSubCategoriesTags  @Get('sub-categories')
+- getProductsTags  @Get('products')
+- newTag  @Post('new') (admin)
+- deleteTag  @Delete(':id/delete')
+- getTagById  @Get(':id')
+- updateTag @Put(':id/update')

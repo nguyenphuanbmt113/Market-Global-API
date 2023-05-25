@@ -6,4 +6,7 @@ export class ItemTag extends BaseEntity {
 
   @Column()
   name: string;
+
+  @Column({ nullable: true })
+  tagId: number;
 }

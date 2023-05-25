@@ -8,6 +8,8 @@ import { AuthModule } from './models/auth/auth.module';
 import { RoleModule } from './models/role/role.module';
 import { CategoryModule } from './models/category/category.module';
 import { SubCategoryModule } from './models/sub_category/sub_category.module';
+import { ProductModule } from './models/product/product.module';
+import { TagModule } from './models/tag/tag.module';
 @Module({
   imports: [
     RoleModule,
@@ -27,6 +29,8 @@ import { SubCategoryModule } from './models/sub_category/sub_category.module';
     AuthModule,
     CategoryModule,
     SubCategoryModule,
+    ProductModule,
+    TagModule,
   ],
   controllers: [AppController],
   providers: [AppService],
