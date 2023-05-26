@@ -306,12 +306,17 @@ export class ProductService {
     const cart = await this.cartService.getUserCart(null, cartId);
     const product = await this.getProductById(productId);
     const { quantity } = createCartProductDto;
+    //kiem tra trong cart co san pham do chua
     const cartProductIndex = cart.cartProducts.findIndex(
       (cp) => cp.productId === product.id,
     );
+    //neu co rui
     if (cartProductIndex >= 0) {
+      //lay product do ra
       const currentCartProduct = cart.cartProducts[cartProductIndex];
+      //them quantity
       currentCartProduct.quantity = currentCartProduct.quantity + quantity;
+      //total price
       currentCartProduct.totalPrice =
         product.currentPrice * currentCartProduct.quantity;
       const savedCartProduct = await currentCartProduct.save();
@@ -319,6 +324,7 @@ export class ProductService {
       await cart.save();
       return await cart.save();
     } else {
+      //neu chua co
       const cartProduct = new CartProduct();
       cartProduct.productId = productId;
       cartProduct.image = product.image;

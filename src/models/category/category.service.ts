@@ -5,12 +5,15 @@ import { SubCategory } from 'src/common/entities/sub-category.entity';
 import { Repository } from 'typeorm';
 import { CategoryCreateDTO } from './dto/create-category.dto';
 import { CategoryUpdateDTO } from './dto/update-category.dto';
+import { SubCategoryService } from '../sub_category/sub_category.service';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectRepository(Category)
     private categoryRepo: Repository<Category>,
+
+    private readonly subCategoryService: SubCategoryService,
   ) {}
 
   async findAll() {
@@ -38,6 +41,9 @@ export class CategoryService {
     const category = await this.categoryRepo.findOneByOrFail({
       id,
     });
+    for (const subCategorie of category.subCategories) {
+      await this.subCategoryService.deleteSubCategory(subCategorie.id);
+    }
     await category.remove();
     return 'delete success';
   }
@@ -55,28 +61,33 @@ export class CategoryService {
     return category;
   }
   //create(chỉ có admin mới chơi đc)
-  async createCategory(
-    categoryCreateDto: CategoryCreateDTO,
-  ): Promise<Category> {
-    const category = await this.categoryRepo.create({
-      ...categoryCreateDto,
-    });
-    await this.categoryRepo.save(category);
-    return category;
+  async createCategory(categoryCreateDto: CategoryCreateDTO) {
+    const { name, description } = categoryCreateDto;
+    const category = new Category();
+    category.name = name;
+    category.description = description;
+    category.subCategories = [];
+    const newCategory = await category.save();
+    return newCategory;
   }
   // add sub-category :id/new-sub-category(chỉ có admin mới chơi đc)
   async addSubCategory(
     categoryId: number,
     sub_categoryCreateDto: CategoryCreateDTO,
-  ): Promise<SubCategory> {
-    const category = await this.findOneByIdCategory(categoryId);
-    const sub_category = new SubCategory();
-    sub_category.category = category;
-    sub_category.name = sub_categoryCreateDto.name;
-    sub_category.description = sub_categoryCreateDto.description;
-    sub_category.products = [];
-    await sub_category.save();
-    return sub_category;
+  ) {
+    const category = await this.categoryRepo.findOne({
+      where: { id: categoryId },
+    });
+    console.log('category:', category);
+    const { name, description } = sub_categoryCreateDto;
+    const subCategory = new SubCategory();
+    subCategory.category = category;
+    subCategory.subCategoryTags = [];
+    subCategory.name = name;
+    subCategory.description = description;
+    subCategory.products = [];
+    const newSubCategory = await subCategory.save();
+    return newSubCategory;
   }
 
   async getTotalCategories() {

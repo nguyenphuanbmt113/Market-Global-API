@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SubCategory } from 'src/common/entities/sub-category.entity';
 import { Repository } from 'typeorm';
@@ -6,6 +6,7 @@ import { SubCategoryUpdateDTO } from './dto/update-subcategory.dto';
 import { SubCategoryTag } from 'src/common/entities/sub-category-tab.entity';
 import { Product } from 'src/common/entities/product.entity';
 import { TagService } from '../tag/tag.service';
+import { ProductService } from '../product/product.service';
 
 @Injectable()
 export class SubCategoryService {
@@ -17,6 +18,7 @@ export class SubCategoryService {
     public readonly subCategoryTagRepository: Repository<SubCategoryTag>,
 
     private readonly tagService: TagService,
+    private readonly productService: ProductService,
   ) {}
   async getAllSubCategories() {
     return await this.subCategoryRepository.find();
@@ -183,5 +185,21 @@ export class SubCategoryService {
       .orderBy('products.createdAt')
       .getOne();
     return subCategory;
+  }
+
+  async deleteSubCategory(id: number) {
+    const subCategory = await this.getSubCategory(id);
+    for (let i = 0; i < subCategory.products.length; i++) {
+      await this.productService.deleteProduct(subCategory.products[i].id);
+    }
+    for (let i = 0; i < subCategory.subCategoryTags.length; i++) {
+      await this.subCategoryTagRepository.delete(
+        subCategory.subCategoryTags[i].id,
+      );
+    }
+    const result = await this.subCategoryRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotAcceptableException('Not Found Sub Category');
+    }
   }
 }

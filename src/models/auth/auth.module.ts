@@ -11,6 +11,7 @@ import { MailModule } from '../mail/mail.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt-stragety';
+import { CartModule } from '../cart/cart.module';
 @Module({
   providers: [AuthService, JwtStrategy],
   exports: [AuthService, JwtStrategy],
@@ -21,6 +22,7 @@ import { JwtStrategy } from './jwt-stragety';
       EmailConfirmEntity,
       PasswordConfirmEntity,
     ]),
+    CartModule,
     MailModule,
     ConfigModule,
     JwtModule.register({

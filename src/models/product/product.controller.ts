@@ -98,18 +98,18 @@ export class ProductController {
     return await this.productService.getMixLatestProduct();
   }
 
-  // @Post(':productId/add-to-cart/:cartId')
-  // @UseGuards(AuthenticationGuard, RolesGuard)
-  // @Roles(UserRole.User)
-  // addToCart(
-  //   @Param('productId') productId: number,
-  //   @Param('cartId') cartId: number,
-  //   @Body() createCartProductDto: any,
-  // ) {
-  //   return this.productService.addProductToCart(
-  //     productId,
-  //     cartId,
-  //     createCartProductDto,
-  //   );
-  // }
+  @Post(':productId/add-to-cart/:cartId')
+  @UseGuards(AuthenticationGuard, RolesGuard)
+  @Roles(UserRole.User)
+  addToCart(
+    @Param('productId') productId: number,
+    @Param('cartId') cartId: number,
+    @Body() createCartProductDto: any,
+  ) {
+    return this.productService.addProductToCart(
+      productId,
+      cartId,
+      createCartProductDto,
+    );
+  }
 }

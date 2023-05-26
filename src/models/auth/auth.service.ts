@@ -17,6 +17,8 @@ import { User } from 'src/common/entities/user.entity';
 import { Repository } from 'typeorm';
 import { MailService } from '../mail/mail.service';
 import * as bcrypt from 'bcrypt';
+import { CartService } from '../cart/cart.service';
+import { C_User_Dto } from './dto/create-user.dto';
 @Injectable()
 export class AuthService {
   constructor(
@@ -31,6 +33,7 @@ export class AuthService {
 
     private jwt: JwtService,
     private readonly sendEmailService: MailService,
+    private readonly cartService: CartService,
   ) {}
 
   async findOneById(id: number) {
@@ -70,7 +73,7 @@ export class AuthService {
     return token;
   }
 
-  async signUp(data: any) {
+  async signUp(data: C_User_Dto) {
     const user = await this.findOneByEmail(data.email);
     if (user) {
       throw new BadRequestException('Email is exists');
@@ -81,6 +84,9 @@ export class AuthService {
     new_user.firstName = data.firstName;
     new_user.lastName = data.lastName;
     await new_user.save();
+
+    //create cart
+    await this.cartService.createCart(new_user);
 
     for (let i = 0; i < data.roles.length; i++) {
       const n_role = new Role();
@@ -107,7 +113,7 @@ export class AuthService {
     // }
     // await parallelAsync.done();
 
-    return 'register success';
+    return new_user;
   }
 
   async signIn(data: any) {
@@ -125,6 +131,8 @@ export class AuthService {
         email: email,
         id: user.id,
       };
+      //xoa password
+      delete user.password;
 
       const token = await this.createToken(payload);
       const refresh_token = this.jwt.sign({
@@ -141,6 +149,8 @@ export class AuthService {
         token,
         user,
       };
+    } else {
+      throw new BadRequestException('check your password or verified email');
     }
   }
 
@@ -178,7 +188,7 @@ export class AuthService {
           user,
         };
       } else {
-        throw new BadRequestException('check your password');
+        throw new BadRequestException('check your password or verified email');
       }
     } else {
       throw new UnauthorizedException();
