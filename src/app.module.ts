@@ -10,6 +10,7 @@ import { CategoryModule } from './models/category/category.module';
 import { SubCategoryModule } from './models/sub_category/sub_category.module';
 import { ProductModule } from './models/product/product.module';
 import { TagModule } from './models/tag/tag.module';
+import { CartModule } from './models/cart/cart.module';
 @Module({
   imports: [
     RoleModule,
@@ -31,6 +32,7 @@ import { TagModule } from './models/tag/tag.module';
     SubCategoryModule,
     ProductModule,
     TagModule,
+    CartModule,
   ],
   controllers: [AppController],
   providers: [AppService],

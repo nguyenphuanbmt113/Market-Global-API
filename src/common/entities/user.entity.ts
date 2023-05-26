@@ -5,11 +5,14 @@ import {
   BeforeInsert,
   Column,
   Entity,
+  JoinColumn,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import BaseClassEntity from './global/base-entity.entity';
 import { Role } from './role.entity';
+import { Cart } from './cart.entity';
 
 @Entity()
 export class User extends BaseClassEntity {
@@ -45,6 +48,15 @@ export class User extends BaseClassEntity {
 
   @OneToMany(() => Role, (role) => role.user, { eager: true })
   roles: Role[];
+
+  @OneToOne(() => Cart, (cart) => cart.user)
+  @JoinColumn()
+  cart?: Cart;
+
+  @Column({
+    nullable: true,
+  })
+  cartId?: number;
 
   // ===== Inverse side Relation =====
 

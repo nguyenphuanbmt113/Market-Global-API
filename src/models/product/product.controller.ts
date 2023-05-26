@@ -44,6 +44,16 @@ export class ProductController {
     return this.productService.getMatchingByNames(name);
   }
 
+  @Post('custom-filter')
+  getFilteredBetweenRange(@Body() productsCustomFilterDto: any) {
+    return this.productService.customFilter(productsCustomFilterDto);
+  }
+
+  @Get('search-by-tag-name/:tagName')
+  getProductsByTagName(@Param('tagName') tagName: string) {
+    return this.productService.searchForProductsByTagName(tagName);
+  }
+
   @Get(':id')
   getProductById(@Param('id') id: number) {
     return this.productService.getProductById(id);
@@ -77,4 +87,29 @@ export class ProductController {
   deleteProduct(@Param('id') id: number) {
     return this.productService.deleteProduct(id);
   }
+
+  @Get('sales')
+  getTotalSales() {
+    return this.productService.getTotalSales();
+  }
+
+  @Get('mix-latest-products')
+  async getMixLatestProduct() {
+    return await this.productService.getMixLatestProduct();
+  }
+
+  // @Post(':productId/add-to-cart/:cartId')
+  // @UseGuards(AuthenticationGuard, RolesGuard)
+  // @Roles(UserRole.User)
+  // addToCart(
+  //   @Param('productId') productId: number,
+  //   @Param('cartId') cartId: number,
+  //   @Body() createCartProductDto: any,
+  // ) {
+  //   return this.productService.addProductToCart(
+  //     productId,
+  //     cartId,
+  //     createCartProductDto,
+  //   );
+  // }
 }

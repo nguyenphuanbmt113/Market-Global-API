@@ -1,8 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CartProduct } from 'src/common/entities/cart_product.entity';
 import { ProductTag } from 'src/common/entities/product-tab.entity';
 import { Product } from 'src/common/entities/product.entity';
+import { ProductsPagination } from 'src/common/interface/pagination.interface';
 import { Repository } from 'typeorm';
+import { CartService } from '../cart/cart.service';
 
 @Injectable()
 export class ProductService {
@@ -10,8 +13,14 @@ export class ProductService {
     @InjectRepository(Product)
     private productRepo: Repository<Product>,
 
+    // @InjectRepository(Cart)
+    private cartService: CartService,
+
     @InjectRepository(ProductTag)
     public readonly productTagRepository: Repository<ProductTag>,
+
+    @InjectRepository(CartProduct)
+    public readonly cartProductRepository: Repository<CartProduct>,
   ) {}
 
   async getAllProducts() {
@@ -86,7 +95,7 @@ export class ProductService {
       .select([
         'product.id',
         'product.name',
-        'product.images',
+        'product.image',
         'product.currentPrice',
         'product.previousPrice',
         'product.subCategoryId',
@@ -94,6 +103,18 @@ export class ProductService {
       .where('productTag.name LIKE :name', { name: name })
       .getMany();
     return searchResults;
+  }
+
+  async searchForProductsByTagName(tag: string) {
+    const queryBuilder = this.productRepo.createQueryBuilder('product');
+    const products = await queryBuilder
+      .leftJoinAndSelect('product.productTags', 'productTag')
+      .where(
+        'productTag.productId IS NOT NULL AND productTag.name LIKE :name',
+        { name: tag },
+      )
+      .getMany();
+    return products;
   }
 
   async getProductsTags() {
@@ -162,7 +183,153 @@ export class ProductService {
     }
   }
 
-  deleteProduct(id: number) {
+  async deleteProduct(id: number) {
+    const product = await this.getProductById(id);
+
+    for (let i = 0; i < product.productTags.length; i++) {
+      //xóa data trong tag product
+      await this.productTagRepository.delete(product.productTags[i].id);
+    }
+    const result = await this.productRepo.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException('not found product');
+    }
     return 'oke';
+  }
+
+  async getTotalSales(): Promise<number> {
+    const { sum } = await this.productRepo
+      .createQueryBuilder('product')
+      .select('SUM(product.sales)', 'sum')
+      .getRawOne();
+    return sum ? sum : 0;
+  }
+
+  async getMixLatestProduct() {
+    const queryBuilder = this.productRepo.createQueryBuilder();
+    const products = await queryBuilder
+      .leftJoinAndSelect('product.productTags', 'productTag')
+      .take(16)
+      .getMany();
+    const filteredProducts = [].concat(
+      products.sort((a, b) => {
+        return <any>new Date(b.createdAt) - <any>new Date(a.createdAt);
+      }),
+    );
+    return filteredProducts;
+  }
+  async getMixLatestProductV2() {
+    const queryBuilder = this.productRepo.createQueryBuilder('product');
+    const products = await queryBuilder
+      .leftJoinAndSelect('product.productTags', 'productTag')
+      .take(16)
+      .orderBy('product.createdAt', 'DESC')
+      .getMany();
+    return products;
+  }
+
+  async getMostSalesProducts() {
+    const queryBuilder = this.productRepo.createQueryBuilder('product');
+    const products = await queryBuilder
+      .orderBy({
+        'product.sales': 'DESC',
+      })
+      .leftJoinAndSelect('product.productTags', 'productTag')
+      .take(10)
+      .getMany();
+    return products;
+  }
+
+  async customFilter(
+    productsCustomFilterDto: any,
+  ): Promise<ProductsPagination> {
+    const { range1, range2, limit, stock, subCategoryId, tag, page } =
+      productsCustomFilterDto;
+    const queryBuilder = this.productRepo.createQueryBuilder('product');
+    const currentPage = page || 1;
+    queryBuilder
+      .leftJoinAndSelect('product.productTags', 'productTag')
+      .where('product.id IS NOT NULL');
+    if (range1) {
+      queryBuilder.andWhere('product.currentPrice >= :range1', {
+        range1: range1,
+      });
+    }
+    if (range2) {
+      queryBuilder.andWhere('product.currentPrice <= :range2', {
+        range2: range2,
+      });
+    }
+    if (stock) {
+      const inStock = stock === 'In Stock';
+      if (inStock) {
+        queryBuilder.andWhere('product.inStock = :stock', { stock: true });
+      } else {
+        queryBuilder.andWhere('product.inStock = :stock', { stock: false });
+      }
+    }
+    if (subCategoryId) {
+      queryBuilder.andWhere('product.subCategoryId = :subCategoryId', {
+        subCategoryId: subCategoryId,
+      });
+    }
+    if (tag) {
+      queryBuilder.andWhere(
+        'productTag.productId IS NOT NULL AND productTag.name LIKE :name',
+        { name: tag },
+      );
+    }
+    const totalProducts = await queryBuilder.getCount();
+
+    const products = await queryBuilder
+      .skip((currentPage - 1) * limit)
+      .take(limit)
+      .orderBy({ 'product.createdAt': 'ASC' })
+      .getMany();
+
+    return {
+      products: products,
+      currentPage: currentPage,
+      hasNextPage: limit * currentPage < totalProducts,
+      hasPreviousPage: currentPage > 1,
+      nextPage: currentPage + 1,
+      previousPage: currentPage - 1,
+      lastPage: Math.ceil(totalProducts / limit),
+    };
+  }
+
+  async addProductToCart(
+    productId: number,
+    cartId: number,
+    createCartProductDto: any,
+  ) {
+    const cart = await this.cartService.getUserCart(null, cartId);
+    const product = await this.getProductById(productId);
+    const { quantity } = createCartProductDto;
+    const cartProductIndex = cart.cartProducts.findIndex(
+      (cp) => cp.productId === product.id,
+    );
+    if (cartProductIndex >= 0) {
+      const currentCartProduct = cart.cartProducts[cartProductIndex];
+      currentCartProduct.quantity = currentCartProduct.quantity + quantity;
+      currentCartProduct.totalPrice =
+        product.currentPrice * currentCartProduct.quantity;
+      const savedCartProduct = await currentCartProduct.save();
+      cart.cartProducts[cartProductIndex] = savedCartProduct;
+      await cart.save();
+      return await cart.save();
+    } else {
+      const cartProduct = new CartProduct();
+      cartProduct.productId = productId;
+      cartProduct.image = product.image;
+      cartProduct.quantity = quantity;
+      cartProduct.totalPrice = product.currentPrice * quantity;
+      cartProduct.maxPush = product.quantity;
+      cartProduct.name = product.name;
+      cart.totalItems += 1;
+      cartProduct.cart = await cart.save();
+      await cartProduct.save();
+      return await this.cartService.getUserCart(null, cart.id);
+    }
   }
 }

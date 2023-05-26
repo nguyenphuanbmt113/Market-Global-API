@@ -2,6 +2,7 @@ import { Column, Entity, ManyToOne, OneToMany, Unique } from 'typeorm';
 import { ProductTag } from './product-tab.entity';
 import { SubCategory } from './sub-category.entity';
 import { AbstractProduct } from '../classes/abstract-product';
+import { CartProduct } from './cart_product.entity';
 
 @Entity('products')
 @Unique(['name'])
@@ -39,6 +40,11 @@ export class Product extends AbstractProduct {
     nullable: true,
   })
   productTags: ProductTag[];
+
+  @OneToMany(() => CartProduct, (cartProduct) => cartProduct.product, {
+    eager: true,
+  })
+  cartProducts: CartProduct[];
 
   @ManyToOne(() => SubCategory, (subCategory) => subCategory.products, {
     eager: false,
