@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductTag } from 'src/common/entities/product-tab.entity';
 import { Product } from 'src/common/entities/product.entity';
@@ -16,7 +16,7 @@ import { CartModule } from '../cart/cart.module';
       SubCategoryTag,
       CartProduct,
     ]),
-    CartModule,
+    forwardRef(() => CartModule),
   ],
   controllers: [ProductController],
   providers: [ProductService],

@@ -49,3 +49,14 @@ CRUD tags
 - deleteTag  @Delete(':id/delete')
 - getTagById  @Get(':id')
 - updateTag @Put(':id/update')
+
+
+CRUD cart
+createUserCart  @Post('create-user-cart')
+getTotalCarts  @Get('count')
+getUserCart  @Get('user-cart')
+
+clearCart  @Delete('clear-cart')
+removeProductsFromCart @Delete('remove-products-from-cart')
+removeCartProductFromCart @Delete(':cartId/remove-product-from-cart/:cartProductId')
+updateCartProductQuantity  @Put(':cartId/update-product-cart-quantity/:cartProductId')

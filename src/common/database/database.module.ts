@@ -12,6 +12,10 @@ import { SubCategoryTag } from '../entities/sub-category-tab.entity';
 import { ProductTag } from '../entities/product-tab.entity';
 import { Cart } from '../entities/cart.entity';
 import { CartProduct } from '../entities/cart_product.entity';
+import { Order } from '../entities/order.entity';
+import { Invoice } from '../entities/invoice.entity';
+import { Payment } from '../entities/payment.entity';
+import { OrderItem } from '../entities/order-item.entity';
 
 @Module({
   imports: [
@@ -37,6 +41,10 @@ import { CartProduct } from '../entities/cart_product.entity';
           SubCategoryTag,
           Cart,
           CartProduct,
+          Order,
+          Invoice,
+          Payment,
+          OrderItem,
         ],
         synchronize: true,
       }),

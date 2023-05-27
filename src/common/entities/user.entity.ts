@@ -13,6 +13,9 @@ import {
 import BaseClassEntity from './global/base-entity.entity';
 import { Role } from './role.entity';
 import { Cart } from './cart.entity';
+import { Invoice } from './invoice.entity';
+import { Payment } from './payment.entity';
+import { Order } from './order.entity';
 
 @Entity()
 export class User extends BaseClassEntity {
@@ -57,6 +60,26 @@ export class User extends BaseClassEntity {
     nullable: true,
   })
   cartId?: number;
+
+  @OneToMany(() => Invoice, (invoice) => invoice.user, {
+    eager: true,
+  })
+  invoices?: Invoice[];
+
+  @OneToMany(() => Payment, (payment) => payment.user, {
+    eager: true,
+  })
+  payments?: Payment[];
+
+  @OneToMany(() => Order, (order) => order.user, {
+    eager: true,
+  })
+  orders?: Order[];
+
+  @Column({
+    nullable: true,
+  })
+  stripeId?: string;
 
   // ===== Inverse side Relation =====
 

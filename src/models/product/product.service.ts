@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CartProduct } from 'src/common/entities/cart_product.entity';
 import { ProductTag } from 'src/common/entities/product-tab.entity';
 import { Product } from 'src/common/entities/product.entity';
-import { ProductsPagination } from 'src/common/interface/pagination.interface';
+import { ProductsPagination } from 'src/common/interface/global.interface';
 import { Repository } from 'typeorm';
 import { CartService } from '../cart/cart.service';
 
@@ -14,6 +19,7 @@ export class ProductService {
     private productRepo: Repository<Product>,
 
     // @InjectRepository(Cart)
+    @Inject(forwardRef(() => CartService))
     private cartService: CartService,
 
     @InjectRepository(ProductTag)

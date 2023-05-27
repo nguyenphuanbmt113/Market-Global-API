@@ -11,6 +11,9 @@ import { SubCategoryModule } from './models/sub_category/sub_category.module';
 import { ProductModule } from './models/product/product.module';
 import { TagModule } from './models/tag/tag.module';
 import { CartModule } from './models/cart/cart.module';
+import { OrderModule } from './models/order/order.module';
+import { PaymentModule } from './models/payment/payment.module';
+import { InvoiceModule } from './models/invoice/invoice.module';
 @Module({
   imports: [
     RoleModule,
@@ -33,6 +36,9 @@ import { CartModule } from './models/cart/cart.module';
     ProductModule,
     TagModule,
     CartModule,
+    OrderModule,
+    PaymentModule,
+    InvoiceModule,
   ],
   controllers: [AppController],
   providers: [AppService],
