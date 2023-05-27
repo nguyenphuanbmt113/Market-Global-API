@@ -83,6 +83,9 @@ export class AuthService {
     new_user.password = data.password;
     new_user.firstName = data.firstName;
     new_user.lastName = data.lastName;
+    new_user.payments = [];
+    new_user.orders = [];
+    new_user.invoices = [];
     await new_user.save();
 
     //create cart
