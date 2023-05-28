@@ -7,6 +7,7 @@ import { SubCategoryTag } from 'src/common/entities/sub-category-tab.entity';
 import { Product } from 'src/common/entities/product.entity';
 import { TagService } from '../tag/tag.service';
 import { ProductService } from '../product/product.service';
+import { InsertTagDto } from './dto/insert-tags.dto';
 
 @Injectable()
 export class SubCategoryService {
@@ -83,13 +84,14 @@ export class SubCategoryService {
     return updatedSubCategory;
   }
 
-  async addTagsToCategory(id: number, dataCreateTagDto: any) {
+  async addTagsToCategory(id: number, dataCreateTagDto: InsertTagDto) {
     let addedTags = [];
-    for (let i = 0; i < dataCreateTagDto.length; i++) {
+    for (let i = 0; i < dataCreateTagDto.tags.length; i++) {
       const sub_category = await this.getSubCategory(id);
       const tag = await this.tagService.getTagById(dataCreateTagDto.tags[i]);
+      console.log('tag:', tag);
       const sub_category_tag = new SubCategoryTag();
-      sub_category_tag.name = dataCreateTagDto.name;
+      sub_category_tag.name = tag.name;
       sub_category_tag.tagId = tag.id;
       sub_category_tag.subCategory = sub_category;
       await sub_category_tag.save();
@@ -167,24 +169,18 @@ export class SubCategoryService {
   }
 
   async fetchMixLatestProducts() {
-    // const subCategories = await this.getAllSubCategories();
-    // const date = new Date(Date.now());
-    // const currentMonth = date.getMonth();
-    // let mixFilteredProducts = [];
-    // for (const subCategory of subCategories) {
-    //   const products: Product[] = subCategory.products.filter(
-    //     (p) =>
-    //       p.createdAt.getMonth() + 1 === currentMonth + 1 && p.inStock === true,
-    //   );
-    //   mixFilteredProducts = mixFilteredProducts.concat(products.slice(0, 1));
-    // }
-    // return mixFilteredProducts;
-    const subCategory = await this.subCategoryRepository
-      .createQueryBuilder('subcategory')
-      .leftJoinAndSelect('subcategory.products', 'products')
-      .orderBy('products.createdAt')
-      .getOne();
-    return subCategory;
+    const subCategories = await this.getAllSubCategories();
+    const date = new Date(Date.now());
+    const currentMonth = date.getMonth();
+    let mixFilteredProducts = [];
+    for (const subCategory of subCategories) {
+      const products: Product[] = subCategory.products.filter(
+        (p) =>
+          p.createdAt.getMonth() + 1 === currentMonth + 1 && p.inStock === true,
+      );
+      mixFilteredProducts = mixFilteredProducts.concat(products.slice(0, 1));
+    }
+    return mixFilteredProducts;
   }
 
   async deleteSubCategory(id: number) {

@@ -17,6 +17,12 @@ import { RolesGuard } from '../auth/guards/role.guard';
 import { SubCategoryService } from './sub_category.service';
 import { SubCategoryUpdateDTO } from './dto/update-subcategory.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { InsertTagDto } from './dto/insert-tags.dto';
+import { diskStorage } from 'multer';
+import {
+  editFileName,
+  imageFileFilter,
+} from 'src/common/customFilesInterceptor/fn';
 
 @Controller('sub-category')
 export class SubCategoryController {
@@ -24,6 +30,10 @@ export class SubCategoryController {
   @Get()
   getAllSubCategories() {
     return this.subCategoryService.getAllSubCategories();
+  }
+  @Get('mix-latest-products')
+  getMixedLatestProducts() {
+    return this.subCategoryService.fetchMixLatestProducts();
   }
 
   @Get('match-by-name/:name')
@@ -49,7 +59,7 @@ export class SubCategoryController {
   @Post(':id/add-tags')
   @UseGuards(AuthenticationGuard, RolesGuard)
   @Roles(UserRole.Admin)
-  addTagsToCategory(@Param('id') id: number, @Body() payload: any) {
+  addTagsToCategory(@Param('id') id: number, @Body() payload: InsertTagDto) {
     return this.subCategoryService.addTagsToCategory(id, payload);
   }
 
@@ -61,32 +71,31 @@ export class SubCategoryController {
     return this.subCategoryService.removeTagsFromCategory(id, payload);
   }
 
-  @Post(':id/new-product/:folderName/:subFolder/:type')
+  @Post(':id/new-product')
   @UseGuards(AuthenticationGuard, RolesGuard)
   @Roles(UserRole.Admin)
-  @UseInterceptors(FilesInterceptor('images'))
+  @UseInterceptors(
+    FilesInterceptor('image', 20, {
+      storage: diskStorage({
+        destination: './files/product',
+        filename: editFileName,
+      }),
+      fileFilter: imageFileFilter,
+    }),
+  )
   newProduct(
     @Param('id') id: number,
-    @Param('type') type: string,
-    @Param('folderName') folderName: string,
-    @Param('subFolder') subFolder: string,
     @Body('name') name: string,
     @Body('description') description: string,
-    @Body('references') refArr: any,
     @Body('currentPrice') currentPrice: number,
     @Body('quantity') quantity: number,
-    @UploadedFiles() images: any,
+    @UploadedFiles() image: any,
   ) {
-    return this.subCategoryService.newProduct(id, images, {
+    return this.subCategoryService.newProduct(id, image, {
       name,
       description,
       quantity,
       currentPrice,
     });
-  }
-
-  @Get('mix-latest-products')
-  getMixedLatestProducts() {
-    return this.subCategoryService.fetchMixLatestProducts();
   }
 }

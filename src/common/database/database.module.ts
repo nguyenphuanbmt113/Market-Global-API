@@ -16,6 +16,7 @@ import { Order } from '../entities/order.entity';
 import { Invoice } from '../entities/invoice.entity';
 import { Payment } from '../entities/payment.entity';
 import { OrderItem } from '../entities/order-item.entity';
+import { Tag } from '../entities/tag.entity';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { OrderItem } from '../entities/order-item.entity';
           Invoice,
           Payment,
           OrderItem,
+          Tag,
         ],
         synchronize: true,
       }),
