@@ -16,6 +16,7 @@ import { PaymentModule } from './models/payment/payment.module';
 import { InvoiceModule } from './models/invoice/invoice.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { ContractModule } from './models/contract/contract.module';
+import { SearchModule } from './share/search/search.module';
 @Module({
   imports: [
     MulterModule.register({
@@ -47,6 +48,7 @@ import { ContractModule } from './models/contract/contract.module';
     PaymentModule,
     InvoiceModule,
     ContractModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [AppService],

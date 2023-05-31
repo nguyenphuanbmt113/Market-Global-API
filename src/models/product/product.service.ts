@@ -15,6 +15,9 @@ import { Tag } from 'src/common/entities/tag.entity';
 
 @Injectable()
 export class ProductService {
+  searchByName(name: string, page: number, limit: number): any {
+    throw new Error('Method not implemented.');
+  }
   constructor(
     @InjectRepository(Product)
     private productRepo: Repository<Product>,
