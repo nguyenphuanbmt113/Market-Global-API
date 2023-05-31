@@ -24,6 +24,8 @@ import { ContractModule } from './models/contract/contract.module';
     RoleModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
+        STRIPE_SECRET_KEY: Joi.string(),
+        STRIPE_CURRENCY: Joi.string(),
         POSTGRES_HOST: Joi.string().required(),
         POSTGRES_PORT: Joi.number().required(),
         POSTGRES_USER: Joi.string().required(),

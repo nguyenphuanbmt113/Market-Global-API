@@ -1,11 +1,11 @@
-import { Column, Entity, ManyToOne, OneToMany, Unique } from 'typeorm';
-import { ProductTag } from './product-tab.entity';
-import { SubCategory } from './sub-category.entity';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { AbstractProduct } from '../classes/abstract-product';
 import { CartProduct } from './cart_product.entity';
+import { ProductTag } from './product-tab.entity';
+import { SubCategory } from './sub-category.entity';
 
 @Entity('products')
-@Unique(['name'])
+// @Unique(['name'])
 export class Product extends AbstractProduct {
   @Column('text', {
     default: '',

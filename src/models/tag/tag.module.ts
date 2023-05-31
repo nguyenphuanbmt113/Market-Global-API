@@ -13,7 +13,7 @@ import { SubCategoryTag } from 'src/common/entities/sub-category-tab.entity';
   imports: [
     TypeOrmModule.forFeature([Tag, SubCategoryTag, ProductTag, SubCategory]),
     forwardRef(() => SubCategoryModule),
-    ProductModule,
+    forwardRef(() => ProductModule),
   ],
   controllers: [TagController],
   providers: [TagService],

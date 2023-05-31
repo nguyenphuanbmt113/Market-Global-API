@@ -14,6 +14,7 @@ import { AuthService } from '../auth/auth.service';
 import { OrderService } from '../order/order.service';
 import { ProductService } from '../product/product.service';
 import { Order } from 'src/common/entities/order.entity';
+import { PaymentService } from '../payment/payment.service';
 
 @Injectable()
 export class CartService {
@@ -31,6 +32,9 @@ export class CartService {
 
     @Inject(forwardRef(() => OrderService))
     private orderService: OrderService,
+
+    @Inject(forwardRef(() => OrderService))
+    private paymentService: PaymentService,
   ) {}
 
   async createCart(user: User): Promise<Cart> {
@@ -169,30 +173,29 @@ export class CartService {
       await this.orderService.createOrderItem(order, cart.cartProducts[i]);
     }
     const clearedCart = await this.clearCart(cart, null, false);
-    // const data = await this.completeCreatingInvoiceAndPayment(
-    //   user,
-    //   createPaymentDto,
-    //   order,
-    //   clearedCart,
-    // );
-    // return data;
-    return 'okala';
+    const data = await this.completeCreatingInvoiceAndPayment(
+      user,
+      createPaymentDto,
+      order,
+      clearedCart,
+    );
+    return data;
   }
 
-  // async completeCreatingInvoiceAndPayment(
-  //   user: User,
-  //   createPaymentDto: any,
-  //   order: Order,
-  //   cart?: Cart,
-  // ) {
-  //   const { payment, invoice, customerId } =
-  //     await this.paymentService.createPayment(user, createPaymentDto, order);
-  //   return {
-  //     order,
-  //     payment,
-  //     invoice,
-  //     customerId,
-  //     cart,
-  //   };
-  // }
+  async completeCreatingInvoiceAndPayment(
+    user: User,
+    createPaymentDto: any,
+    order: Order,
+    cart?: Cart,
+  ) {
+    const { payment, invoice, customerId } =
+      await this.paymentService.createPayment(user, createPaymentDto, order);
+    return {
+      order,
+      payment,
+      invoice,
+      customerId,
+      cart,
+    };
+  }
 }

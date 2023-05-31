@@ -23,8 +23,18 @@ export class ProductController {
   getAllProducts() {
     return this.productService.getAllProducts();
   }
+  @Get('mix-latest-products')
+  async getMixLatestProduct() {
+    return await this.productService.getMixLatestProduct();
+  }
 
-  @Get('shop')
+  @Get('total-sales')
+  getTotalSales() {
+    console.log('abcd');
+    return this.productService.getTotalSales();
+  }
+
+  @Get('pagination')
   getShopProducts(@Query('limit') limit: number, @Query('page') page: number) {
     return this.productService.getShopProducts(page, limit);
   }
@@ -86,16 +96,6 @@ export class ProductController {
   @Roles(UserRole.Admin)
   deleteProduct(@Param('id') id: number) {
     return this.productService.deleteProduct(id);
-  }
-
-  @Get('sales')
-  getTotalSales() {
-    return this.productService.getTotalSales();
-  }
-
-  @Get('mix-latest-products')
-  async getMixLatestProduct() {
-    return await this.productService.getMixLatestProduct();
   }
 
   @Post(':productId/add-to-cart/:cartId')

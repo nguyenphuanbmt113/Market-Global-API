@@ -4,18 +4,17 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Post,
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { TagService } from './tag.service';
-import { SubCategoryService } from '../sub_category/sub_category.service';
 import { UserRole } from 'src/common/entities/role.entity';
 import { Roles } from '../auth/decorator/role.decorator';
 import { AuthenticationGuard } from '../auth/guards/jwt-guards.guard';
 import { RolesGuard } from '../auth/guards/role.guard';
 import { ProductService } from '../product/product.service';
+import { SubCategoryService } from '../sub_category/sub_category.service';
+import { TagService } from './tag.service';
 
 @Controller('tag')
 export class TagController {
@@ -50,19 +49,23 @@ export class TagController {
   @Delete(':id/delete')
   @UseGuards(AuthenticationGuard, RolesGuard)
   @Roles(UserRole.Admin)
-  deleteTag(@Param('id', ParseIntPipe) id: number) {
+  @UseGuards(AuthenticationGuard, RolesGuard)
+  @Roles(UserRole.Admin)
+  deleteTag(@Param('id') id: number) {
     return this.tagService.deleteTag(id);
   }
 
   @Get(':id')
-  getTagById(@Param('id', ParseIntPipe) id: number) {
+  getTagById(@Param('id') id: number) {
     return this.tagService.getTagById(id);
   }
 
   @Put(':id/update')
   @UseGuards(AuthenticationGuard, RolesGuard)
   @Roles(UserRole.Admin)
-  updateTag(@Param('id', ParseIntPipe) id: number, @Body() updateTagDto: any) {
+  @UseGuards(AuthenticationGuard, RolesGuard)
+  @Roles(UserRole.Admin)
+  updateTag(@Param('id') id: number, @Body() updateTagDto: any) {
     return this.tagService.updateTag(id, updateTagDto);
   }
 }

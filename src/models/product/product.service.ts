@@ -11,6 +11,7 @@ import { Product } from 'src/common/entities/product.entity';
 import { ProductsPagination } from 'src/common/interface/global.interface';
 import { Repository } from 'typeorm';
 import { CartService } from '../cart/cart.service';
+import { Tag } from 'src/common/entities/tag.entity';
 
 @Injectable()
 export class ProductService {
@@ -18,9 +19,17 @@ export class ProductService {
     @InjectRepository(Product)
     private productRepo: Repository<Product>,
 
+    @InjectRepository(Tag)
+    private tagRepo: Repository<Tag>,
+
     // @InjectRepository(Cart)
     @Inject(forwardRef(() => CartService))
     private cartService: CartService,
+
+    // @Inject(forwardRef(() => TagService))
+    // private tagService: TagService,
+    // @Inject(forwardRef(() => TagService))
+    // private subCateservice: TagService,
 
     @InjectRepository(ProductTag)
     public readonly productTagRepository: Repository<ProductTag>,
@@ -30,6 +39,7 @@ export class ProductService {
   ) {}
 
   async getAllProducts() {
+    console.log(process.env.PORT);
     const products = await this.productRepo.find();
     return products;
   }
@@ -130,12 +140,6 @@ export class ProductService {
       if (!uniqueArray.includes(productTags[i].name)) {
         uniqueArray.push(productTags[i]);
       }
-      // const item = uniqueArray.find(
-      //   (item) => item.name === productTags[i].name,
-      // );
-      // if (!item) {
-      //   uniqueArray = [...uniqueArray, productTags[i]];
-      // }
     }
     return uniqueArray;
   }
@@ -161,17 +165,18 @@ export class ProductService {
 
   async addTagsToProduct(id: number, payload: any) {
     const product = await this.getProductById(id);
+    console.log('product:', product);
     //tags: [1,2,3,4]
-    let arrayTags = [];
+    const arrayTags = [];
     for (let i = 0; i < payload.tags.length; i++) {
-      const tag = await this.productTagRepository.findOneByOrFail({
-        id: payload.tags[i].id,
+      const tag = await this.tagRepo.findOneByOrFail({
+        id: payload.tags[i],
       });
-      arrayTags = [...arrayTags, tag];
+      arrayTags.push(tag);
     }
+    console.log('arrayTags:', arrayTags);
     product.productTags = [...arrayTags];
-    await product.save();
-    return arrayTags;
+    return await product.save();
   }
 
   async removeTagsFromProduct(id: number, payload: any) {
@@ -212,7 +217,7 @@ export class ProductService {
   }
 
   async getMixLatestProduct() {
-    const queryBuilder = this.productRepo.createQueryBuilder();
+    const queryBuilder = this.productRepo.createQueryBuilder('product');
     const products = await queryBuilder
       .leftJoinAndSelect('product.productTags', 'productTag')
       .take(16)

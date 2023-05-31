@@ -31,6 +31,12 @@ export class SubCategoryController {
   getAllSubCategories() {
     return this.subCategoryService.getAllSubCategories();
   }
+
+  @Get('total')
+  getTotalSubCategories() {
+    return this.subCategoryService.getTotalSubCategories();
+  }
+
   @Get('mix-latest-products')
   getMixedLatestProducts() {
     return this.subCategoryService.fetchMixLatestProducts();

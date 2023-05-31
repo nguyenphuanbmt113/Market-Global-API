@@ -17,7 +17,6 @@ export class SubCategoryService {
 
     @InjectRepository(SubCategoryTag)
     public readonly subCategoryTagRepository: Repository<SubCategoryTag>,
-
     private readonly tagService: TagService,
     private readonly productService: ProductService,
   ) {}
@@ -142,8 +141,6 @@ export class SubCategoryService {
     return uniqueArray;
   }
 
-  //newProduct
-  //@Post(':id/new-product/:folderName/:subFolder/:type') (admin)
   async newProduct(
     subCategoryId: number,
     image: any,

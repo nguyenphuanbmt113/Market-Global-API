@@ -76,18 +76,18 @@ export class CartController {
     );
   }
 
-  // @Post('checkout-on-cart')
-  // checkoutOnCart(
-  //   @UserDeco() user: User,
-  //   @Body('createOrderDto') createOrderDto: any,
-  //   @Body('createPaymentDto') createPaymentDto: any,
-  // ) {
-  //   return this.cartService.checkoutOnCart(
-  //     user,
-  //     createOrderDto,
-  //     createPaymentDto,
-  //   );
-  // }
+  @Post('checkout-on-cart')
+  checkoutOnCart(
+    @UserDeco() user: User,
+    @Body('createOrderDto') createOrderDto: any,
+    @Body('createPaymentDto') createPaymentDto: any,
+  ) {
+    return this.cartService.checkoutOnCart(
+      user,
+      createOrderDto,
+      createPaymentDto,
+    );
+  }
 
   // @Post('checkout-on-single-product/:cartProductId')
   // checkoutOnSingleProduct(
